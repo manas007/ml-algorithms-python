@@ -1,7 +1,7 @@
 import numpy as np
 
-class Perceptron:
-    """Perceptron classifier
+class AdalineGD:
+    """Adaptive Linear Neuron classifier
 
     Parameters
     ------------
@@ -24,7 +24,7 @@ class Perceptron:
         Bias
     
     errors : list
-        Number of misclassifications in each epoch / iteration
+        Mean squared loss error in each epoch/iteration 
     
     """
 
@@ -54,27 +54,34 @@ class Perceptron:
 
         self.w_ = rgen.normal(loc=0.0, scale=0.01, size=X.shape[1])
         self.b_ = np.float_(0.0)
-        self.errors_ = []
+        self.losses_ = []
 
-        for _ in range(self.n_iter):
-            error = 0
-            for xi, yi in zip(X, y):
-                update = self.eta * (yi - self.predict(xi))                
-                self.w_ += update * xi
-                self.b_ += update
+        for i in range(self.n_iter):
+            net_input = self.net_input(X)
+            # the identity function used as the activation function on the net_input
+            output = self.activation(net_input)
 
-                if update != 0.0:
-                    error += 1
-            self.errors_.append(error)
+            errors = (y - output) # size : (n_examples, 1)
+
+            # update the weights and bias
+            self.w_ += self.eta * 2.0 * X.T.dot(errors) / X.shape[0]
+            self.b_ += self.eta * 2.0 * errors.mean()
+            
+            # calculate loss for the iteration
+            loss = (errors**2).mean() # mean squared error loss
+            print(f'At iter : {i} -> loss : {loss}')
+
+            # keep track of loss for iteration
+            self.losses_.append(loss)
+
         return self
     
     def net_input(self, X):
         return np.dot(X, self.w_) + self.b_
+    
+    def activation(self, X):
+        """Compute Linear activation"""
+        return X
 
     def predict(self, X):
-        return np.where(self.net_input(X) >= 0.0 , 1, 0)
-    
-    #[-0.35375655  0.91388244] -0.2
-    
-
-    
+        return np.where(self.activation(self.net_input(X)) >= 0.5 , 1, 0)
