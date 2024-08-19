@@ -21,8 +21,8 @@ X1_min = X[:, 0].min()
 X1_max = X[:, 0].max()
 
 x1 = np.linspace(X1_min, X1_max, 100)
-x2 = (-(agd.w_[0]/agd.w_[1]) * x1 ) - (agd.b_ / agd.w_[1])
-
+# w1x1 + w2x2 + b = 0.5
+x2 = (0.5 - agd.b_ - (agd.w_[0] * x1)) / agd.w_[1]
 #plot the training data
 plt.scatter(X[0:50, 0], X[0:50, 1] , color='red', marker='o', label='Setosa') # X[0:50, 0] 50 examples of feature 1 (col = 0) plotted with X[0:50, 1] 50 examples of feature 2 (col 1)
 plt.scatter(X[50:, 0], X[50:, 1] , color='blue', marker='s', label='Versicolor')
